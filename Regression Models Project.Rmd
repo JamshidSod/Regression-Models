@@ -1,0 +1,86 @@
+---
+title: "Regression Models Project"
+author: "Jamshid Sodikov"
+date: "September 24, 2015"
+output: html_document
+---
+
+**Task**
+
+Exploring the relationship between a set of variables and miles per gallon (MPG) (outcome). They are particularly interested in the following two questions:
+
+1. ???Is an automatic or manual transmission better for MPG???
+2. ???Quantifying how different is the MPG between automatic and manual transmissions????
+
+**Question**
+
+Take the mtcars data set and write up an analysis to answer their question using regression models and exploratory data analyses.
+
+Your report must be:
+
+Written as a PDF printout of a compiled (using knitr) R markdown document.
+Brief. Roughly the equivalent of 2 pages or less for the main text. Supporting figures in an appendix can be included up to 5 total pages including the 2 for the main report. The appendix can only include figures.
+Include a first paragraph executive summary.
+Upload your PDF by clicking the Upload button below the text box.
+
+**Load Data**
+```{r}
+data(mtcars)
+```
+**Exploratory analysis**
+```{r,results='hide'}
+summary(mtcars) #Summary statistics are omitted due to space limitation 
+```
+
+```{r, echo=TRUE}
+head(mtcars)
+```
+
+```{r, results='hide'}
+mtcars$cyl <- factor(mtcars$cyl)
+mtcars$vs <- factor(mtcars$vs)
+mtcars$gear <- factor(mtcars$gear)
+mtcars$carb <- factor(mtcars$carb)
+mtcars$am <- factor(mtcars$am,labels=c('Automatic','Manual'))
+```
+
+**Regression model**
+
+```{r,results='hide'}
+full.model <- lm(mpg ~ ., data = mtcars)
+best.model <- step(full.model, direction = "backward")
+```
+
+```{r}
+summary(best.model)$coeff
+```
+
+Final model resulted in the following regressors such as the cyl6, cyl8, hp, wt, and amManual variables (overall p-value<0.001). The adjusted R-squared equals to 84%  which is variance explained by the final model. Moreover, the results suggest that mpg decreases with respect to cylinders (-3.03 and -2.16 for cyl6 and cyl8, respectively), horsepower (-0.03), and weight (for every 1,000lb, by -2.5). On the other hand, mpg increases with respect to having a manual transmission (by 1.8). 
+
+```{r}
+t.test(mpg ~ am, data = mtcars)
+```
+
+**Conclusion**
+
+ According to these results, cars with a manual transmission are better for mpg than cars with an automatic transmission. The rate of change of the conditional mean mpg with respect to am is about 1.8, and we are 95% confident that this value varies between -1.06 and 4.68. 
+
+
+**Appendix**
+
+Residuals plot 
+```{r}
+par(mfrow=c(2, 2))
+plot(best.model)
+```
+Residual plots suggest that some transformation may be necessary to achieve linearity.
+
+Box-plot
+```{r}
+boxplot(mpg ~ am, data = mtcars, col = "blue", ylab = "miles per gallon")
+```
+
+The boxplots show a difference in mpg depending on the type of transmission. The t-test output confirms that this difference is statistically significant (p-value < 0.05).
+
+
+
